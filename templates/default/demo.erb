@@ -1,0 +1,19 @@
+server {
+        server_name <%= node['demo']['site_url'] %> localhost
+
+	access_log   /var/log/nginx/<%= node['demo']['site_url'] %>.access.log;
+	error_log    /var/log/nginx/<%= node['demo']['site_url'] %>.error.log;
+
+        root /var/www/<%= node['demo']['site_url'] %>/htdocs;
+        index index.php;
+
+        location / {
+                try_files $uri $uri/ /index.php?$args; 
+        }
+
+        location ~ \.php$ {
+                try_files $uri =404;
+                include fastcgi_params;
+                fastcgi_pass 127.0.0.1:9000;
+        }
+}
