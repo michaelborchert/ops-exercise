@@ -34,8 +34,12 @@ bash 'extract_wp_files' do
 	code "tar --strip-components=1 -xvf latest.tar.gz && rm latest.tar.gz && chown -R www-data:www-data /var/www/#{node['demo']['site_url']}"
 end
 
+#Need the DB password!
+password_secret = Chef::EncryptedDataBagItem.load_secret(node['demo']['secret_file'])
+password_data_bag_item = Chef::EncryptedDataBagItem.load('database_passwords', 'mysql_db', password_secret)
+
 execute 'create_wp_db' do
-	command "mysql -u root -p#{node['mysqld']['root_password']} -e 'CREATE DATABASE IF NOT EXISTS my_db;'"
+	command "mysql -u root -p#{password_data_bag_item['root_password']} -e 'CREATE DATABASE IF NOT EXISTS #{node['demo']['db_name']};'"
 end
 
 template "/etc/nginx/sites-available/#{node['demo']['site_url']}" do
